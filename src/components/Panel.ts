@@ -131,7 +131,7 @@ class Panel implements FlickingPanel {
       ? ""
       : EVENTS.CHANGE;
 
-    viewport.moveTo(this, eventType, null, duration);
+    viewport.moveTo(this, viewport.findEstimatedPosition(this), eventType, null, duration);
   }
 
   public update(updateFunction: (element: HTMLElement) => any): void {
@@ -321,7 +321,7 @@ class Panel implements FlickingPanel {
     state.clonedPanels.forEach(panel => panel.state.index = index);
   }
 
-  public setPosition(pos: number, virtual: boolean = false): void {
+  public setPosition(pos: number, virtual: boolean = false): this {
     const state = this.state;
     const options = this.viewport.options;
     const elementStyle = this.element.style;
@@ -332,6 +332,8 @@ class Panel implements FlickingPanel {
         ? elementStyle.left = `${pos}px`
         : elementStyle.top = `${pos}px`;
     }
+
+    return this;
   }
 
   public clone(cloneIndex: number, virtual: boolean = false): Panel {
