@@ -41,6 +41,7 @@ class FreeScroll extends Snap {
   }
 
   public findRestorePanel(ctx: MoveTypeContext): DestinationInfo {
+    // It doesn't have to restore.
     return this.findTargetPanel(ctx);
   }
 }

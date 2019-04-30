@@ -1,5 +1,5 @@
 import State from "./State";
-import { STATE_TYPE, EVENTS } from "../consts";
+import { STATE_TYPE, EVENTS, MOVE_TYPE } from "../consts";
 import { FlickingContext } from "../types";
 import { circulate } from "../utils";
 
@@ -61,6 +61,12 @@ class AnimatingState extends State {
       ? viewport.setCurrentPanel(this.targetPanel!)
       : viewport.setCurrentPanel(viewport.getNearestPanel()!);
     transitTo(STATE_TYPE.IDLE);
+
+    const moveType = viewport.moveType;
+    if (moveType.is(MOVE_TYPE.STRICT)) {
+      viewport.updateScrollArea();
+    }
+
     triggerEvent(EVENTS.MOVE_END, e, isTrusted, {
       direction: this.direction,
     });

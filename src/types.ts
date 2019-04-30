@@ -65,7 +65,7 @@ export interface FlickingOptions {
   moveType: MoveTypeOption;
 }
 
-export type MoveTypeObjectOption = MoveTypeSnapOption | MoveTypeFreeScrollOption;
+export type MoveTypeObjectOption = MoveTypeSnapOption | MoveTypeFreeScrollOption | MoveTypeStrictOption;
 export type MoveTypeStringOption = MoveTypeObjectOption["type"];
 
 export interface MoveTypeContext {
@@ -118,6 +118,19 @@ export interface MoveTypeSnapOption {
  */
 export interface MoveTypeFreeScrollOption {
   type: "freeScroll";
+}
+
+/**
+ * With "strict" move type, maximum panel you can go from current panel is restricted.
+ * @ko 현재 패널로부터 최대로 이동할 수 있는 패널의 개수를 제한하는 이동 방식
+ * @typedef
+ * @memberof eg.Flicking
+ * @property - Should be `"strict"` to enable strict mode.<ko>`"strict"`를 지정하여 strict 모드를 활성화할 수 있다.
+ * @property {number} [count=1] - Maximum number of panels can go from current panel.<ko>현재 패널로부터 이동할 수 있는 패널의 최대 갯수.</ko>
+ */
+export interface MoveTypeStrictOption {
+  type: "strict";
+  count: number;
 }
 
 // State interface to save instance

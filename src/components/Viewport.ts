@@ -10,6 +10,7 @@ import { DEFAULT_VIEWPORT_CSS, DEFAULT_CAMERA_CSS, TRANSFORM, DEFAULT_OPTIONS, E
 import { clamp, applyCSS, toArray, parseArithmeticExpression, isBetween, isArray, parseElement } from "../utils";
 import Snap from "../moves/Snap";
 import FreeScroll from "../moves/FreeScroll";
+import Strict from "../moves/Strict";
 
 export default class Viewport {
   public options: FlickingOptions;
@@ -466,6 +467,91 @@ export default class Viewport {
     }
   }
 
+  public updateScrollArea(): void {
+    const state = this.state;
+    const panelManager = this.panelManager;
+    const options = this.options;
+    const axes = this.axes;
+    const moveType = this.moveType;
+    const flick = axes.axis.flick;
+    const isCircular = options.circular;
+
+    // Set viewport scrollable area
+    const firstPanel = panelManager.firstPanel();
+    const lastPanel = panelManager.lastPanel() as Panel;
+    const relativeHangerPosition = state.relativeHangerPosition;
+
+    if (!firstPanel) {
+      state.scrollArea = {
+        prev: 0,
+        next: 0,
+      };
+    } else if (this.canSetBoundMode()) {
+      state.scrollArea = {
+        prev: firstPanel.getPosition(),
+        next: lastPanel.getPosition() + lastPanel.getSize() - state.size,
+      };
+    } else if (isCircular) {
+      const sumOriginalPanelSize = lastPanel.getPosition() + lastPanel.getSize() - firstPanel.getPosition() + options.gap;
+
+      // Maximum scroll extends to first clone sequence's first panel
+      state.scrollArea = {
+        prev: firstPanel.getAnchorPosition() - relativeHangerPosition,
+        next: sumOriginalPanelSize + firstPanel.getAnchorPosition() - relativeHangerPosition,
+      };
+    } else {
+      state.scrollArea = {
+        prev: firstPanel.getAnchorPosition() - relativeHangerPosition,
+        next: lastPanel.getAnchorPosition() - relativeHangerPosition,
+      };
+    }
+
+    // After updating scroll area as normal, use that values to update strict type's scroll area
+    const currentPanel = this.currentPanel;
+    if (moveType.is(MOVE_TYPE.STRICT) && currentPanel) {
+      if (!currentPanel.prevSibling || !currentPanel.nextSibling) {
+        panelManager.chainAllPanels();
+      }
+
+      const maxCount = (moveType as Strict).getCount();
+      const [nextPanel, nextLooped] = this.findNthAdjacentFrom({
+        panel: currentPanel,
+        count: maxCount,
+        isNext: true,
+      });
+      const [prevPanel, prevLooped] = this.findNthAdjacentFrom({
+        panel: currentPanel,
+        count: maxCount,
+        isNext: false,
+      });
+
+      const prevScrollArea = state.scrollArea;
+      state.scrollArea = {
+        prev: clamp(prevPanel.getAnchorPosition() - relativeHangerPosition, prevScrollArea.prev, prevScrollArea.next),
+        next: clamp(nextPanel.getAnchorPosition() - relativeHangerPosition, prevScrollArea.prev, prevScrollArea.next),
+      };
+
+      if (isCircular) {
+        flick.circular = [prevLooped, nextLooped];
+      }
+    }
+
+    const viewportSize = state.size;
+    const bounce = options.bounce;
+
+    let parsedBounce: number[] = bounce as [number, number];
+    if (isArray(bounce)) {
+      parsedBounce = (bounce as string[]).map(val => parseArithmeticExpression(val, viewportSize, DEFAULT_OPTIONS.bounce as number));
+    } else {
+      const parsedVal = parseArithmeticExpression(bounce as number | string, viewportSize, DEFAULT_OPTIONS.bounce as number);
+      parsedBounce = [parsedVal, parsedVal];
+    }
+
+    // Update axes range and bounce
+    flick.range = [state.scrollArea.prev, state.scrollArea.next];
+    flick.bounce = parsedBounce;
+  }
+
   public destroy(): void {
     const viewportElement = this.viewportElement;
     const wrapper = viewportElement.parentElement;
@@ -711,6 +797,9 @@ export default class Viewport {
       case MOVE_TYPE.FREE_SCROLL:
         this.moveType = new FreeScroll();
         break;
+      case MOVE_TYPE.STRICT:
+        this.moveType = new Strict(moveType.count);
+        break;
       default:
         throw new Error("moveType is not correct!");
     }
@@ -726,7 +815,9 @@ export default class Viewport {
     this.axes = new Axes({
       flick: {
         range: [scrollArea.prev, scrollArea.next],
-        circular: options.circular,
+        circular: this.moveType.is(MOVE_TYPE.STRICT)
+          ? false
+          : options.circular,
         bounce: [0, 0], // will be updated in resize()
       },
     }, {
@@ -950,59 +1041,6 @@ export default class Viewport {
       panel.setPosition(replacePosition);
       lastReplacePosition = replacePosition;
     }
-  }
-
-  private updateScrollArea(): void {
-    const state = this.state;
-    const panelManager = this.panelManager;
-    const options = this.options;
-    const axes = this.axes;
-
-    // Set viewport scrollable area
-    const firstPanel = panelManager.firstPanel();
-    const lastPanel = panelManager.lastPanel() as Panel;
-    const relativeHangerPosition = state.relativeHangerPosition;
-
-    if (!firstPanel) {
-      state.scrollArea = {
-        prev: 0,
-        next: 0,
-      };
-    } else if (this.canSetBoundMode()) {
-      state.scrollArea = {
-        prev: firstPanel.getPosition(),
-        next: lastPanel.getPosition() + lastPanel.getSize() - state.size,
-      };
-    } else if (options.circular) {
-      const sumOriginalPanelSize = lastPanel.getPosition() + lastPanel.getSize() - firstPanel.getPosition() + options.gap;
-
-      // Maximum scroll extends to first clone sequence's first panel
-      state.scrollArea = {
-        prev: firstPanel.getAnchorPosition() - relativeHangerPosition,
-        next: sumOriginalPanelSize + firstPanel.getAnchorPosition() - relativeHangerPosition,
-      };
-    } else {
-      state.scrollArea = {
-        prev: firstPanel.getAnchorPosition() - relativeHangerPosition,
-        next: lastPanel.getAnchorPosition() - relativeHangerPosition,
-      };
-    }
-
-    const viewportSize = state.size;
-    const bounce = options.bounce;
-
-    let parsedBounce: number[] = bounce as [number, number];
-    if (isArray(bounce)) {
-      parsedBounce = (bounce as string[]).map(val => parseArithmeticExpression(val, viewportSize, DEFAULT_OPTIONS.bounce as number));
-    } else {
-      const parsedVal = parseArithmeticExpression(bounce as number | string, viewportSize, DEFAULT_OPTIONS.bounce as number);
-      parsedBounce = [parsedVal, parsedVal];
-    }
-
-    // Update axes range and bounce
-    const flick = axes.axis.flick;
-    flick.range = [state.scrollArea.prev, state.scrollArea.next];
-    flick.bounce = parsedBounce;
   }
 
   // Update camera position after resizing
@@ -1232,5 +1270,49 @@ export default class Viewport {
         range: indexRange,
       } as Partial<NeedPanelEvent>,
     );
+  }
+
+  private findNthAdjacentFrom(props: {
+    panel: Panel,
+    count: number,
+    isNext: boolean
+  }): [Panel, boolean] {
+    const { panel, count, isNext } = props;
+    const scrollArea = this.state.scrollArea;
+
+    // Return adjacent panel if it exists, or current if not.
+    const getAdjacentPanel = (current: Panel) => {
+      const nextPanel = isNext
+        ? current.nextSibling
+        : current.prevSibling;
+      return nextPanel
+        ? nextPanel
+        : current;
+    };
+
+    const isLooped = (current: Panel, adjacent: Panel) => {
+      return isNext
+        ? current.getPosition() >= adjacent.getPosition()
+        : current.getPosition() <= adjacent.getPosition();
+    };
+
+    const isOutOfRange = (current: Panel) => {
+      return !isBetween(panel.getAnchorPosition() - this.getRelativeHangerPosition(), scrollArea.prev, scrollArea.next);
+    };
+
+    let currentPanel = panel;
+    let passed = 0;
+    while (passed < count) {
+      const adjacent = getAdjacentPanel(currentPanel);
+
+      if (isOutOfRange(adjacent) || isLooped(currentPanel, adjacent)) {
+        break;
+      }
+
+      currentPanel = adjacent;
+      passed += 1;
+    }
+
+    return [currentPanel, passed < count];
   }
 }

@@ -1,17 +1,20 @@
-import { FlickingOptions, EventType, Direction, AxesEventType, StateType, MoveTypeSnapOption, MoveTypeFreeScrollOption } from "./types";
+import { FlickingOptions, EventType, Direction, AxesEventType, StateType, MoveTypeSnapOption, MoveTypeFreeScrollOption, MoveTypeStrictOption } from "./types";
 import { checkTranslateSupport } from "./utils";
 
 export const MOVE_TYPE: {
   SNAP: "snap";
   FREE_SCROLL: "freeScroll";
+  STRICT: "strict";
 } = {
   SNAP: "snap",
   FREE_SCROLL: "freeScroll",
+  STRICT: "strict",
 };
 
 export const DEFAULT_MOVE_TYPE_OPTIONS: {
   snap: MoveTypeSnapOption,
   freeScroll: MoveTypeFreeScrollOption,
+  strict: MoveTypeStrictOption,
 } = {
   snap: {
     type: "snap",
@@ -19,6 +22,10 @@ export const DEFAULT_MOVE_TYPE_OPTIONS: {
   },
   freeScroll: {
     type: "freeScroll",
+  },
+  strict: {
+    type: "strict",
+    count: 1,
   },
 };
 
@@ -45,7 +52,7 @@ export const DEFAULT_OPTIONS: Readonly<FlickingOptions> = {
   hanger: "50%",
   anchor: "50%",
   gap: 0,
-  moveType: DEFAULT_MOVE_TYPE_OPTIONS.snap,
+  moveType: DEFAULT_MOVE_TYPE_OPTIONS.strict,
 };
 
 export const DEFAULT_VIEWPORT_CSS = {
