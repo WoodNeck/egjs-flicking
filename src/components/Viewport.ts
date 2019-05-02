@@ -6,7 +6,7 @@ import PanelManager from "./PanelManager";
 import StateMachine from "./StateMachine";
 import MoveType from "../moves/MoveType";
 import { FlickingOptions, FlickingPanel, FlickingStatus, ElementLike, EventType, TriggerCallback, NeedPanelEvent, FlickingEvent, MoveTypeObjectOption } from "../types";
-import { DEFAULT_VIEWPORT_CSS, DEFAULT_CAMERA_CSS, TRANSFORM, DEFAULT_OPTIONS, EVENTS, DIRECTION, STATE_TYPE, MOVE_TYPE } from "../consts";
+import { DEFAULT_VIEWPORT_CSS, DEFAULT_CAMERA_CSS, TRANSFORM, DEFAULT_OPTIONS, EVENTS, DIRECTION, MOVE_TYPE } from "../consts";
 import { clamp, applyCSS, toArray, parseArithmeticExpression, isBetween, isArray, parseElement } from "../utils";
 import Snap from "../moves/Snap";
 import FreeScroll from "../moves/FreeScroll";
@@ -179,11 +179,7 @@ export default class Viewport {
   }
 
   public stopCamera = (axesEvent: any): void => {
-    if (axesEvent && axesEvent.setTo) {
-      axesEvent.setTo({ flick: this.state.position }, 0);
-    }
 
-    this.stateMachine.transitTo(STATE_TYPE.IDLE);
   }
 
   public resize(): void {
@@ -716,6 +712,7 @@ export default class Viewport {
   }
 
   public setCurrentPanel(panel: Panel): void {
+    console.trace();
     this.currentPanel = panel;
   }
 

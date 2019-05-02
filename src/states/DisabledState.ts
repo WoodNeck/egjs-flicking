@@ -17,6 +17,10 @@ class DisabledState extends State {
       transitTo(STATE_TYPE.IDLE);
     }
   }
+
+  public onFinish(e: any, { transitTo }: FlickingContext): void {
+    transitTo(STATE_TYPE.IDLE);
+  }
 }
 
 export default DisabledState;

@@ -19,7 +19,7 @@ class DraggingState extends State {
   }
 
   public onRelease(e: any, context: FlickingContext): void {
-    const { flicking, viewport, triggerEvent, transitTo, stopCamera } = context;
+    const { flicking, viewport, triggerEvent, transitTo } = context;
 
     const delta = this.delta;
     const options = flicking.options;
@@ -127,7 +127,7 @@ class DraggingState extends State {
       transitTo(STATE_TYPE.ANIMATING);
     }).onStopped(() => {
       transitTo(STATE_TYPE.DISABLED);
-      stopCamera(e);
+      e.setTo({ flick: viewport.getCameraPosition() }, 0);
     });
   }
 }

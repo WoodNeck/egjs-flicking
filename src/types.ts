@@ -453,7 +453,6 @@ export interface FlickingContext {
   transitTo: StateMachine["transitTo"];
   triggerEvent: Flicking["triggerEvent"];
   moveCamera: Flicking["moveCamera"];
-  stopCamera: Viewport["stopCamera"];
 }
 
 /**

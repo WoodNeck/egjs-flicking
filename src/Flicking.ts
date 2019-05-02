@@ -571,7 +571,6 @@ class Flicking extends Component {
       transitTo: stateMachine.transitTo,
       triggerEvent: flicking.triggerEvent,
       moveCamera: flicking.moveCamera,
-      stopCamera: viewport.stopCamera,
     };
 
     const handlers = {};
