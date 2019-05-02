@@ -191,8 +191,13 @@ class Flicking extends Component {
         targetPanel = identicals[identicals.length - 1];
       }
 
-      targetPanel = targetPanel.clone(targetPanel.getCloneIndex(), true);
-      targetPanel.setPosition(nearestPosition, true);
+      if (targetPanel.getPosition() !== nearestPosition) {
+        targetPanel = targetPanel.clone(targetPanel.getCloneIndex(), true);
+        targetPanel.setPosition(nearestPosition, true);
+        offset > 0
+          ? targetPanel.setLoop(1)
+          : targetPanel.setLoop(-1);
+      }
     }
     const currentIndex = this.getIndex();
 

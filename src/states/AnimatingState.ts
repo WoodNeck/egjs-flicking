@@ -19,8 +19,7 @@ class AnimatingState extends State {
     if (isCircular && firstPanel && lastPanel) {
       // Regardless of move type
       const offset = firstPanel.getAnchorPosition() - viewport.getRelativeHangerPosition();
-      const scrollAreaSize = lastPanel.getPosition() - firstPanel.getPosition()
-        + lastPanel.getSize() + viewport.options.gap;
+      const scrollAreaSize = viewport.getScrollAreaSize();
 
       const loopCount = Math.floor((this.lastPosition + this.delta - offset) / scrollAreaSize);
       const cloneCount = viewport.panelManager.getCloneCount();
@@ -45,7 +44,7 @@ class AnimatingState extends State {
 
     const moveType = viewport.moveType;
     if (moveType.is(MOVE_TYPE.STRICT)) {
-      this.circulatePosition(viewport);
+      viewport.updateScrollArea();
     }
 
     triggerEvent(EVENTS.HOLD_START, e, true)
@@ -71,13 +70,10 @@ class AnimatingState extends State {
   public onFinish(e: any, { flicking, viewport, triggerEvent, transitTo }: FlickingContext) {
     const isTrusted = e && e.isTrusted;
 
-    viewport.setCurrentPanel(this.targetPanel!);
+    viewport.setCurrentPanel(this.targetPanel!.getOriginalPanel());
     transitTo(STATE_TYPE.IDLE);
 
-    const moveType = viewport.moveType;
-    if (moveType.is(MOVE_TYPE.STRICT)) {
-      this.circulatePosition(viewport);
-    }
+    this.circulatePosition(viewport);
 
     triggerEvent(EVENTS.MOVE_END, e, isTrusted, {
       direction: this.direction,
@@ -103,7 +99,10 @@ class AnimatingState extends State {
       viewport.updateAxesPosition(estimatedPosition);
       viewport.setCurrentPanel(currentPanel);
     }
-    viewport.updateScrollArea();
+
+    if (viewport.moveType.is(MOVE_TYPE.STRICT)) {
+      viewport.updateScrollArea();
+    }
   }
 }
 

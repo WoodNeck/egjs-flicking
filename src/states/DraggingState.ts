@@ -61,7 +61,7 @@ class DraggingState extends State {
       const destPos = isFreeScroll
         ? e.destPos.flick
         : viewport.findEstimatedPosition(targetPanel);
-      viewport.moveTo(targetPanel, destPos, "", e);
+      viewport.moveTo(targetPanel, destPos, "", e, options.duration);
       transitTo(STATE_TYPE.ANIMATING);
       return;
     }

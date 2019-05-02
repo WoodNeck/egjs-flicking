@@ -31,12 +31,20 @@ class PanelManager {
     this.lastIndex = options.lastIndex;
   }
 
-  public firstPanel(): Panel | undefined {
-    return this.panels[this.range.min];
+  public firstPanel(): Panel | null {
+    const firstPanel = this.panels[this.range.min];
+
+    return firstPanel
+      ? firstPanel
+      : null;
   }
 
-  public lastPanel(): Panel | undefined {
-    return this.panels[this.range.max];
+  public lastPanel(): Panel | null {
+    const lastPanel = this.panels[this.range.max];
+
+    return lastPanel
+      ? lastPanel
+      : null;
   }
 
   public allPanels(): ReadonlyArray<Panel> {
@@ -58,8 +66,10 @@ class PanelManager {
     return !!this.panels[index];
   }
 
-  public get(index: number): Panel | undefined {
-    return this.panels[index];
+  public get(index: number): Panel | null {
+    return this.panels[index]
+      ? this.panels[index]
+      : null;
   }
 
   public getPanelCount(): number {

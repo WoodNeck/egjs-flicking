@@ -12,6 +12,7 @@ class Panel implements FlickingPanel {
   private state: {
     index: number;
     position: number;
+    loop: number;
     relativeAnchorPosition: number;
     size: number;
     isClone: boolean;
@@ -39,6 +40,7 @@ class Panel implements FlickingPanel {
       position: 0,
       relativeAnchorPosition: 0,
       size: 0,
+      loop: 0,
       clonedPanels: [],
       isClone: false,
       cloneIndex: -1,
@@ -170,6 +172,7 @@ class Panel implements FlickingPanel {
     if (prevPanelPosition !== newPosition) {
       prevPanel = prevSibling.clone(prevSibling.getCloneIndex(), true);
       prevPanel.setPosition(newPosition, true);
+      prevPanel.setLoop(this.getLoop() - 1);
     }
 
     return prevPanel;
@@ -205,6 +208,7 @@ class Panel implements FlickingPanel {
     if (nextPanelPosition !== newPosition) {
       nextPanel = nextSibling.clone(nextSibling.getCloneIndex(), true);
       nextPanel.setPosition(newPosition, true);
+      nextPanel.setLoop(this.getLoop() + 1);
     }
 
     return nextPanel;
@@ -288,6 +292,10 @@ class Panel implements FlickingPanel {
     return this.state.isClone;
   }
 
+  public getLoop(): number {
+    return this.state.loop;
+  }
+
   public getCloneIndex(): number {
     return this.state.cloneIndex;
   }
@@ -319,6 +327,10 @@ class Panel implements FlickingPanel {
 
     state.index = index;
     state.clonedPanels.forEach(panel => panel.state.index = index);
+  }
+
+  public setLoop(loop: number): void {
+    this.state.loop = loop;
   }
 
   public setPosition(pos: number, virtual: boolean = false): this {

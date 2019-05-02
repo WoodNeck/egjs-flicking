@@ -48,7 +48,7 @@ class Strict extends MoveType {
       : scrollArea.prev;
 
     return {
-      panel: targetPanel,
+      panel: targetPanel.getOriginalPanel(),
       destPos,
       duration: viewport.options.duration,
       eventType: EVENTS.CHANGE,

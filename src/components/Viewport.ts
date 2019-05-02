@@ -27,8 +27,8 @@ export default class Viewport {
 
   private triggerEvent: Flicking["triggerEvent"];
 
-  private currentPanel: Panel | undefined;
-  private nearestPanel: Panel | undefined;
+  private currentPanel: Panel | null;
+  private nearestPanel: Panel | null;
 
   private state: {
     size: number;
@@ -85,6 +85,7 @@ export default class Viewport {
     duration: number = this.options.duration,
   ): TriggerCallback {
     const state = this.state;
+    const options = this.options;
     const currentState = this.stateMachine.getState();
     const currentPosition = state.position;
 
@@ -132,6 +133,28 @@ export default class Viewport {
         // no move
         this.nearestPanel = panel;
         this.currentPanel = panel;
+      }
+
+      const flick = this.axes.axis.flick;
+      if (this.moveType.is(MOVE_TYPE.STRICT) && !isTrusted) {
+        const panelManager = this.panelManager;
+        const firstPanel = panelManager.firstPanel()!;
+        const lastPanel = panelManager.lastPanel()!;
+        const relativeHangerPosition = this.getRelativeHangerPosition();
+
+        if (options.circular) {
+          flick.range = [
+            firstPanel.getAnchorPosition() - relativeHangerPosition,
+            lastPanel.getPosition() + lastPanel.getSize() + options.gap
+              + firstPanel.getRelativeAnchorPosition() - relativeHangerPosition,
+          ];
+          flick.circular = [true, true];
+        } else {
+          flick.range = [
+            firstPanel.getAnchorPosition() - relativeHangerPosition,
+            lastPanel.getAnchorPosition() - relativeHangerPosition,
+          ];
+        }
       }
 
       if (axesEvent && axesEvent.setTo) {
@@ -196,12 +219,12 @@ export default class Viewport {
     this.updateCameraPosition();
   }
 
-  public findNearestPanelAt(position: number): Panel | undefined {
+  public findNearestPanelAt(position: number): Panel | null {
     const panelManager = this.panelManager;
 
     const allPanels = panelManager.allPanels();
     let minimumDistance = Infinity;
-    let nearestPanel: Panel | undefined;
+    let nearestPanel: Panel | null;
 
     for (const panel of allPanels) {
       if (!panel) {
@@ -301,6 +324,7 @@ export default class Viewport {
   }
 
   public insert(index: number, element: ElementLike | ElementLike[]): FlickingPanel[] {
+    const currentState = this.stateMachine.getState();
     const lastIndex = this.panelManager.getLastIndex();
 
     // Index should not below 0
@@ -340,10 +364,15 @@ export default class Viewport {
 
     this.resize();
 
+    if (currentState.targetPanel) {
+      this.updateTargetPanel();
+    }
+
     return panels;
   }
 
   public replace(index: number, element: ElementLike | ElementLike[]): FlickingPanel[] {
+    const currentState = this.stateMachine.getState();
     const panelManager = this.panelManager;
     const lastIndex = panelManager.getLastIndex();
 
@@ -384,10 +413,15 @@ export default class Viewport {
 
     this.resize();
 
+    if (currentState.targetPanel) {
+      this.updateTargetPanel();
+    }
+
     return panels;
   }
 
   public remove(index: number, deleteCount: number = 1): FlickingPanel[] {
+    const currentState = this.stateMachine.getState();
     // Index should not below 0
     index = Math.max(index, 0);
 
@@ -401,7 +435,12 @@ export default class Viewport {
       const newCurrentIndex = Math.max(index - 1, panelManager.getRange().min);
       this.currentPanel = panelManager.get(newCurrentIndex);
     }
+
     this.resize();
+
+    if (currentState.targetPanel) {
+      this.updateTargetPanel();
+    }
 
     return removedPanels;
   }
@@ -508,6 +547,8 @@ export default class Viewport {
           ? nextPosition - relativeHangerPosition
           : clamp(nextPosition - relativeHangerPosition, prevScrollArea.prev, prevScrollArea.next),
       };
+
+      this.axes.axis.flick.circular = [false, false];
     }
 
     const viewportSize = state.size;
@@ -569,7 +610,7 @@ export default class Viewport {
     this.moveCamera(status.position);
   }
 
-  public getCurrentPanel(): Panel | undefined {
+  public getCurrentPanel(): Panel | null {
     return this.currentPanel;
   }
 
@@ -581,7 +622,7 @@ export default class Viewport {
       : -1;
   }
 
-  public getNearestPanel(): Panel | undefined {
+  public getNearestPanel(): Panel | null {
     return this.nearestPanel;
   }
 
@@ -689,10 +730,18 @@ export default class Viewport {
       && summedPanelSize >= state.size;
   }
 
+  // Return scroll area size regardless of move type
   public getScrollAreaSize(): number {
-    const scrollArea = this.state.scrollArea;
+    const panelManager = this.panelManager;
+    const firstPanel = panelManager.firstPanel();
+    const lastPanel = panelManager.lastPanel();
 
-    return scrollArea.next - scrollArea.prev;
+    if (!firstPanel || !lastPanel) {
+      return 0;
+    }
+
+    return lastPanel.getPosition() - firstPanel.getPosition()
+      + lastPanel.getSize() + this.options.gap;
   }
 
   public getRelativeHangerPosition(): number {
@@ -868,7 +917,7 @@ export default class Viewport {
     const panels = panelManager.originalPanels();
 
     const prevCloneCount = panelManager.getCloneCount();
-        // If it's strict move type, we can move out of original scroll area one panel one each direction
+    // If it's strict move type, we can move out of original scroll area one panel one each direction
     const cloneCount = (this.moveType.is(MOVE_TYPE.STRICT))
       ? Math.ceil((viewportSize + bounce[1] - relativeHangerPosition + firstPanel.getRelativeAnchorPosition()) / sumOriginalPanelSize)
         + Math.ceil((relativeHangerPosition + bounce[0] + lastPanel.getSize() - lastPanel.getRelativeAnchorPosition()) / sumOriginalPanelSize)
@@ -1018,11 +1067,13 @@ export default class Viewport {
       const clonedPanelPos = cloneBasePos + origPanel.getPosition();
 
       panel.setPosition(clonedPanelPos);
+      panel.setLoop(cloneIndex + 1);
     }
 
     let lastReplacePosition = firstPanel.getPosition();
 
     // reverse() pollutes original array, so copy it with concat()
+    const maxCloneCount = panelManager.getCloneCount();
     for (const panel of clonedPanels.concat().reverse()) {
       const panelSize = panel.getSize();
       const replacePosition = lastReplacePosition - panelSize - options.gap;
@@ -1033,6 +1084,7 @@ export default class Viewport {
       }
 
       panel.setPosition(replacePosition);
+      panel.setLoop(-(maxCloneCount - panel.getCloneIndex()));
       lastReplacePosition = replacePosition;
     }
   }
@@ -1257,5 +1309,18 @@ export default class Viewport {
         range: indexRange,
       } as Partial<NeedPanelEvent>,
     );
+  }
+
+  private updateTargetPanel() {
+    const currentState = this.stateMachine.getState();
+    const originalTargetPanel = currentState.targetPanel!;
+    const estimatedPosition = originalTargetPanel.getAnchorPosition() - this.getRelativeHangerPosition();
+    const newTargetPanel = this.findNearestPanelAt(estimatedPosition)!;
+
+    if (newTargetPanel.getAnchorPosition() !== originalTargetPanel.getAnchorPosition()) {
+      newTargetPanel.setPosition(newTargetPanel.getPosition() + originalTargetPanel.getLoop() * this.getScrollAreaSize());
+    }
+
+    currentState.targetPanel = newTargetPanel;
   }
 }
