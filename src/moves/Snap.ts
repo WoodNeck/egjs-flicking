@@ -92,7 +92,7 @@ class Snap extends MoveType {
     const duration = clamp(axesEvent.duration, defaultDuration, defaultDuration * passedPanelCount);
 
     return {
-      panel: panelToMove,
+      panel: panelToMove.getOriginalPanel(),
       destPos: viewport.findEstimatedPosition(panelToMove),
       duration,
       eventType: passedPanelCount > 0

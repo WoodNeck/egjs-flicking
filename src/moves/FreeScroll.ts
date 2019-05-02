@@ -30,7 +30,7 @@ class FreeScroll extends Snap {
         + viewport.getRelativeHangerPosition();
 
       return {
-        panel: viewport.findNearestPanelAt(estimatedPosition)!,
+        panel: viewport.findNearestPanelAt(estimatedPosition)!.getOriginalPanel(),
         destPos,
         duration: viewport.options.duration,
         eventType: swipeDistance > minimumDistanceToChange

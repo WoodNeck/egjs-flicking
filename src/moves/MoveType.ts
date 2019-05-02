@@ -20,7 +20,7 @@ abstract class MoveType {
       : viewport.getCurrentPanel()!;
 
     return {
-      panel,
+      panel: panel.getOriginalPanel(),
       destPos: viewport.findEstimatedPosition(panel),
       duration: options.duration,
       eventType: EVENTS.RESTORE,
@@ -32,7 +32,7 @@ abstract class MoveType {
     const nearestPanel = viewport.getNearestPanel()!;
 
     return {
-      panel: nearestPanel,
+      panel: nearestPanel.getOriginalPanel(),
       duration: viewport.options.duration,
       destPos: viewport.findEstimatedPosition(nearestPanel),
       eventType: swipeDistance <= minimumDistanceToChange

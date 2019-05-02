@@ -5,12 +5,6 @@ import { isBetween } from "../utils";
 
 class Strict extends MoveType {
   protected readonly type: string = MOVE_TYPE.STRICT;
-  private count: number;
-
-  constructor(count: number) {
-    super();
-    this.count = count;
-  }
 
   public findTargetPanel(ctx: MoveTypeContext): DestinationInfo {
     const { viewport, swipeDistance, minimumDistanceToChange } = ctx;
@@ -34,26 +28,28 @@ class Strict extends MoveType {
     }
   }
 
-  public getCount(): number {
-    return this.count;
-  }
-
   private findMaximumFromCurrentPanel(ctx: MoveTypeContext): DestinationInfo {
     const { viewport } = ctx;
+    const currentPanel = viewport.getCurrentPanel()!;
     const state = viewport.stateMachine.getState();
+    const scrollArea = viewport.getScrollArea();
     const delta = state.delta;
     const movedToNextDirection = delta > 0;
 
-    const scrollArea = viewport.getScrollArea();
-    const relativeHangerPosition = viewport.getRelativeHangerPosition();
-    const targetPosition = movedToNextDirection
-      ? scrollArea.next + relativeHangerPosition
-      : scrollArea.prev + relativeHangerPosition;
-    const targetPanel = viewport.findNearestPanelAt(targetPosition)!;
+    let targetPanel = movedToNextDirection
+      ? currentPanel.nextSibling
+      : currentPanel.prevSibling;
+    if (!targetPanel) {
+      targetPanel = currentPanel;
+    }
+
+    const destPos = movedToNextDirection
+      ? scrollArea.next
+      : scrollArea.prev;
 
     return {
       panel: targetPanel,
-      destPos: viewport.findEstimatedPosition(targetPanel),
+      destPos,
       duration: viewport.options.duration,
       eventType: EVENTS.CHANGE,
     };

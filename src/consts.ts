@@ -25,7 +25,6 @@ export const DEFAULT_MOVE_TYPE_OPTIONS: {
   },
   strict: {
     type: "strict",
-    count: 1,
   },
 };
 

@@ -154,7 +154,7 @@ setTimeout(function() {
     f2b = createFlicking("#flick2-2", {
       circular: true,
       gap: 10,
-      duration: 3000,
+      duration: 300,
       autoResize: true
     }).on("select", e => e.panel.prev().prev().prev().focus(3000));
     f2c = createFlicking("#flick2-3", {
@@ -188,33 +188,30 @@ setTimeout(function() {
     // Snap & Free Scroll
     f4 = createFlicking("#flick4", {
       moveType: {type: "snap", count: 2},
-      duration: 3000,
+      duration: 300,
       bounce: 100,
       autoResize: true
     });
     f4a = createFlicking("#flick4-1", {
       moveType: {type: "snap", count: 2},
       circular: true,
-      duration: 1000,
       autoResize: true
     });
     f4b = createFlicking("#flick4-2", {
       moveType: "freeScroll",
-      duration: 500,
       bounce: 100,
       autoResize: true
     });
     f4c = createFlicking("#flick4-3", {
       moveType: "freeScroll",
       circular: true,
-      duration: 500,
       autoResize: true
     });
 
     // Events & Methods
     fe = createFlicking("#flick-event", {
       circular: true,
-      moveType: "freeScroll",
+      moveType: "snap",
       autoResize: true
     }).on({
       holdStart: log,
@@ -297,7 +294,7 @@ setTimeout(function() {
       infinite: true,
       moveType: "freeScroll",
       lastIndex: 50,
-      duration: 3000,
+      duration: 300,
       autoResize: true
     }).on({
       needPanel: function(e) {

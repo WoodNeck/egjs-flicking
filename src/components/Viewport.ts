@@ -26,7 +26,6 @@ export default class Viewport {
   private cameraElement: HTMLElement;
 
   private triggerEvent: Flicking["triggerEvent"];
-  private axesHandlers: {[key: string]: any};
 
   private currentPanel: Panel | undefined;
   private nearestPanel: Panel | undefined;
@@ -153,7 +152,7 @@ export default class Viewport {
 
     // Update position & nearestPanel
     state.position = pos;
-    this.nearestPanel = this.findNearestPanel();
+    this.nearestPanel = this.findNearestPanelAt(this.getHangerPosition());
 
     const nearestPanel = this.nearestPanel;
     const originalNearestPosition = nearestPanel
@@ -204,22 +203,6 @@ export default class Viewport {
     panelManager.chainAllPanels();
     this.updateCameraPosition();
   }
-  // Find nearest anchor from current hanger position
-  public findNearestPanel(): Panel | undefined {
-    const state = this.state;
-    const panelManager = this.panelManager;
-    const hangerPosition = this.getHangerPosition();
-
-    if (this.isOutOfBound()) {
-      const position = state.position;
-
-      return position <= state.scrollArea.prev
-        ? panelManager.firstPanel()
-        : panelManager.lastPanel();
-    }
-
-    return this.findNearestPanelAt(hangerPosition);
-  }
 
   public findNearestPanelAt(position: number): Panel | undefined {
     const panelManager = this.panelManager;
@@ -244,7 +227,7 @@ export default class Viewport {
         );
 
       if (distance > minimumDistance) {
-        break;
+        continue;
       } else if (distance === minimumDistance) {
         const minimumAnchorDistance = Math.abs(position - nearestPanel!.getAnchorPosition());
         const anchorDistance = Math.abs(position - panel.getAnchorPosition());
@@ -509,31 +492,30 @@ export default class Viewport {
     // After updating scroll area as normal, use that values to update strict type's scroll area
     const currentPanel = this.currentPanel;
     if (moveType.is(MOVE_TYPE.STRICT) && currentPanel) {
-      if (!currentPanel.prevSibling || !currentPanel.nextSibling) {
-        panelManager.chainAllPanels();
-      }
-
-      const maxCount = (moveType as Strict).getCount();
-      const [nextPanel, nextLooped] = this.findNthAdjacentFrom({
-        panel: currentPanel,
-        count: maxCount,
-        isNext: true,
-      });
-      const [prevPanel, prevLooped] = this.findNthAdjacentFrom({
-        panel: currentPanel,
-        count: maxCount,
-        isNext: false,
-      });
+      const prevPanel = currentPanel.prevSibling
+        ? currentPanel.prevSibling
+        : currentPanel;
+      const nextPanel = currentPanel.nextSibling
+        ? currentPanel.nextSibling
+        : currentPanel;
+      const currentPosition = currentPanel.getPosition();
+      const currentAnchorPosition = currentPanel.getAnchorPosition();
+      const prevPosition = prevPanel
+        ? currentPosition - prevPanel.getSize() - options.gap + prevPanel.getRelativeAnchorPosition()
+        : currentAnchorPosition;
+      const nextPosition = nextPanel
+        ? currentPosition + currentPanel.getSize() + options.gap + nextPanel.getRelativeAnchorPosition()
+        : currentAnchorPosition;
 
       const prevScrollArea = state.scrollArea;
       state.scrollArea = {
-        prev: clamp(prevPanel.getAnchorPosition() - relativeHangerPosition, prevScrollArea.prev, prevScrollArea.next),
-        next: clamp(nextPanel.getAnchorPosition() - relativeHangerPosition, prevScrollArea.prev, prevScrollArea.next),
+        prev: options.circular
+          ? prevPosition - relativeHangerPosition
+          : clamp(prevPosition - relativeHangerPosition, prevScrollArea.prev, prevScrollArea.next),
+        next: options.circular
+          ? nextPosition - relativeHangerPosition
+          : clamp(nextPosition - relativeHangerPosition, prevScrollArea.prev, prevScrollArea.next),
       };
-
-      if (isCircular) {
-        flick.circular = [prevLooped, nextLooped];
-      }
     }
 
     const viewportSize = state.size;
@@ -591,7 +573,7 @@ export default class Viewport {
 
     this.resize();
 
-    this.axes.setTo({ flick: status.position }, 0);
+    this.updateAxesPosition(status.position);
     this.moveCamera(status.position);
   }
 
@@ -752,8 +734,14 @@ export default class Viewport {
   public connectAxesHandler(handlers: {[key: string]: (event: { [key: string]: any; }) => any}): void {
     const axes = this.axes;
 
-    this.axesHandlers = handlers;
     axes.on(handlers);
+  }
+
+  public updateAxesPosition(position: number) {
+    const axes = this.axes;
+
+    // This should be done before moveCamera, as moveCamera can trigger needPanel
+    (axes.axm as any)._pos.flick = position;
   }
 
   private build(): void {
@@ -764,6 +752,9 @@ export default class Viewport {
     this.setDefaultPanel();
     this.resize();
     this.moveToDefaultPanel();
+    if (this.moveType.is(MOVE_TYPE.STRICT)) {
+      this.updateScrollArea();
+    }
   }
 
   private applyCSSValue(): void {
@@ -798,7 +789,7 @@ export default class Viewport {
         this.moveType = new FreeScroll();
         break;
       case MOVE_TYPE.STRICT:
-        this.moveType = new Strict(moveType.count);
+        this.moveType = new Strict();
         break;
       default:
         throw new Error("moveType is not correct!");
@@ -865,20 +856,31 @@ export default class Viewport {
     const viewportSize = state.size;
     const firstPanel = panelManager.firstPanel();
     const lastPanel = panelManager.lastPanel() as Panel;
+    const bounce = this.axes.axis.flick.bounce as [number, number];
 
     // There're no panels exist
     if (!firstPanel) {
       return;
     }
 
-    const sumOriginalPanelSize = lastPanel.getPosition() + lastPanel.getSize() - firstPanel.getPosition() + this.options.gap;
-    const visibleAreaSize = viewportSize + firstPanel.getRelativeAnchorPosition();
+    const lastPosition = lastPanel.getPosition() + lastPanel.getSize() + this.options.gap;
+    const sumOriginalPanelSize = lastPosition - firstPanel.getPosition();
+    const relativeHangerPosition = this.getRelativeHangerPosition();
+    const visibleAreaSize = (this.moveType.is(MOVE_TYPE.STRICT))
+      ? viewportSize + bounce[0] + bounce[1]
+        + firstPanel.getRelativeAnchorPosition()
+        - lastPanel.getSize() + lastPanel.getRelativeAnchorPosition()
+      : viewportSize + firstPanel.getRelativeAnchorPosition();
 
     // For each panels, clone itself while last panel's position + size is below viewport size
     const panels = panelManager.originalPanels();
 
-    const cloneCount = Math.ceil(visibleAreaSize / sumOriginalPanelSize);
     const prevCloneCount = panelManager.getCloneCount();
+        // If it's strict move type, we can move out of original scroll area one panel one each direction
+    const cloneCount = (this.moveType.is(MOVE_TYPE.STRICT))
+      ? Math.ceil((viewportSize + bounce[1] - relativeHangerPosition + firstPanel.getRelativeAnchorPosition()) / sumOriginalPanelSize)
+        + Math.ceil((relativeHangerPosition + bounce[0] + lastPanel.getSize() - lastPanel.getRelativeAnchorPosition()) / sumOriginalPanelSize)
+      : Math.ceil(visibleAreaSize / sumOriginalPanelSize);
 
     if (cloneCount > prevCloneCount) {
       // should clone more
@@ -915,7 +917,7 @@ export default class Viewport {
     }
 
     this.moveCamera(defaultPosition);
-    this.axes.setTo({ flick: defaultPosition }, 0);
+    this.updateAxesPosition(defaultPosition);
   }
 
   private updateSize(): void {
@@ -996,13 +998,10 @@ export default class Viewport {
   }
 
   private updateClonedPanelPositions(): void {
-    const state = this.state;
     const options = this.options;
     const panelManager = this.panelManager;
     const clonedPanels = panelManager.clonedPanels()
       .filter(panel => !!panel);
-
-    const scrollArea = state.scrollArea;
 
     const firstPanel = panelManager.firstPanel();
     const lastPanel = panelManager.lastPanel()!;
@@ -1011,7 +1010,9 @@ export default class Viewport {
       return;
     }
 
+    const scrollArea = this.getScrollArea();
     const sumOriginalPanelSize = lastPanel.getPosition() + lastPanel.getSize() - firstPanel.getPosition() + options.gap;
+    const bounce = this.axes.axis.flick.bounce as number[];
 
     // Locate all cloned panels linearly first
     for (const panel of clonedPanels) {
@@ -1028,12 +1029,13 @@ export default class Viewport {
     }
 
     let lastReplacePosition = firstPanel.getPosition();
+
     // reverse() pollutes original array, so copy it with concat()
     for (const panel of clonedPanels.concat().reverse()) {
       const panelSize = panel.getSize();
       const replacePosition = lastReplacePosition - panelSize - options.gap;
 
-      if (replacePosition + panelSize <= scrollArea.prev) {
+      if (replacePosition + panelSize <= scrollArea.prev - bounce[0]) {
         // Replace is not meaningful, as it won't be seen in current scroll area
         break;
       }
@@ -1046,7 +1048,6 @@ export default class Viewport {
   // Update camera position after resizing
   private updateCameraPosition(): void {
     const state = this.state;
-    const axes = this.axes;
     const currentPanel = this.getCurrentPanel();
     const currentState = this.stateMachine.getState();
 
@@ -1060,13 +1061,7 @@ export default class Viewport {
       newPosition = clamp(newPosition, state.scrollArea.prev, state.scrollArea.next);
     }
 
-    // Pause & resume axes to prevent axes's "change" event triggered
-    // This should be done before moveCamera, as moveCamera can trigger needPanel
-    this.axes.off();
-    axes.setTo({
-      flick: newPosition,
-    }, 0);
-    this.axes.on(this.axesHandlers);
+    this.updateAxesPosition(newPosition);
     this.moveCamera(newPosition);
   }
 
@@ -1270,49 +1265,5 @@ export default class Viewport {
         range: indexRange,
       } as Partial<NeedPanelEvent>,
     );
-  }
-
-  private findNthAdjacentFrom(props: {
-    panel: Panel,
-    count: number,
-    isNext: boolean
-  }): [Panel, boolean] {
-    const { panel, count, isNext } = props;
-    const scrollArea = this.state.scrollArea;
-
-    // Return adjacent panel if it exists, or current if not.
-    const getAdjacentPanel = (current: Panel) => {
-      const nextPanel = isNext
-        ? current.nextSibling
-        : current.prevSibling;
-      return nextPanel
-        ? nextPanel
-        : current;
-    };
-
-    const isLooped = (current: Panel, adjacent: Panel) => {
-      return isNext
-        ? current.getPosition() >= adjacent.getPosition()
-        : current.getPosition() <= adjacent.getPosition();
-    };
-
-    const isOutOfRange = (current: Panel) => {
-      return !isBetween(panel.getAnchorPosition() - this.getRelativeHangerPosition(), scrollArea.prev, scrollArea.next);
-    };
-
-    let currentPanel = panel;
-    let passed = 0;
-    while (passed < count) {
-      const adjacent = getAdjacentPanel(currentPanel);
-
-      if (isOutOfRange(adjacent) || isLooped(currentPanel, adjacent)) {
-        break;
-      }
-
-      currentPanel = adjacent;
-      passed += 1;
-    }
-
-    return [currentPanel, passed < count];
   }
 }
