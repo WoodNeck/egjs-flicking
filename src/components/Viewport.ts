@@ -178,10 +178,6 @@ export default class Viewport {
       : `translate(${moveCoord})`;
   }
 
-  public stopCamera = (axesEvent: any): void => {
-
-  }
-
   public resize(): void {
     const panelManager = this.panelManager;
 
@@ -712,7 +708,6 @@ export default class Viewport {
   }
 
   public setCurrentPanel(panel: Panel): void {
-    console.trace();
     this.currentPanel = panel;
   }
 

@@ -10,12 +10,19 @@ class AnimatingState extends State {
   public readonly playing = true;
 
   public onHold(e: any, { viewport, triggerEvent, transitTo }: FlickingContext): void {
-    const scrollArea = viewport.getScrollArea();
-    const scrollAreaSize = viewport.getScrollAreaSize();
-    const loopCount = Math.floor((this.lastPosition + this.delta - scrollArea.prev) / scrollAreaSize);
+    const isCircular = viewport.options.circular;
+    const panelManager = viewport.panelManager;
 
-    const targetPanel = this.targetPanel;
-    if (loopCount !== 0 && targetPanel) {
+    const targetPanel = this.targetPanel!;
+    const firstPanel = panelManager.firstPanel();
+    const lastPanel = panelManager.lastPanel();
+    if (isCircular && firstPanel && lastPanel) {
+      // Regardless of move type
+      const offset = firstPanel.getAnchorPosition() - viewport.getRelativeHangerPosition();
+      const scrollAreaSize = lastPanel.getPosition() - firstPanel.getPosition()
+        + lastPanel.getSize() + viewport.options.gap;
+
+      const loopCount = Math.floor((this.lastPosition + this.delta - offset) / scrollAreaSize);
       const cloneCount = viewport.panelManager.getCloneCount();
       const originalTargetPosition = targetPanel.getPosition();
 
@@ -26,7 +33,7 @@ class AnimatingState extends State {
 
       // Set new target panel considering looped count
       newTargetPanel.setPosition(newTargetPosition, true);
-      this.targetPanel = newTargetPanel.getOriginalPanel();
+      this.targetPanel = newTargetPanel;
     }
 
     // Reset last position and delta
