@@ -11,7 +11,7 @@
   "rules": {
     "jsdoc-format": true,
     "forin": false,
-    "no-console": false,
+    "no-console": true,
     "no-any": false,
     "variable-name": false,
     "no-bitwise": false,
