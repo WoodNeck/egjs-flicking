@@ -9,7 +9,11 @@
     "types": [
       "karma-chai",
       "mocha",
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"]
+    },
   },
   "include": [
     "./src/**/*.ts",

@@ -1,9 +1,14 @@
 import Renderer from "./Renderer";
 import Panel from "~/core/Panel";
 
-// TODO: This should render all panels
 class BasicRenderer implements Renderer {
-  public get panels(): Panel[] { return []; }
+  private _panels: Panel[] = [];
+
+  public get panels(): Panel[] { return this._panels; }
+
+  constructor({} = {}) {
+
+  }
 }
 
 export default BasicRenderer;

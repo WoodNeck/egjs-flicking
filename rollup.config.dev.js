@@ -1,14 +1,14 @@
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
+import { fileName, globalName } from "./rollup.config";
 
 const buildHelper = require("@egjs/build-helper");
-const name = "Flicking";
 
 export default buildHelper([
   {
-    name,
+    name: globalName,
     input: "./src/index.umd.ts",
-    output: `./demo/dist/flicking.pkgd.js`,
+    output: `./demo/dist/${fileName}.pkgd.js`,
     format: "umd",
     resolve: true,
     plugins: [

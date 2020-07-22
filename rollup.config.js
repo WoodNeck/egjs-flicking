@@ -6,40 +6,41 @@
 // flicking.esm.js
 
 const buildHelper = require("@egjs/build-helper");
-const name = "Flicking";
+export const fileName = "flicking";
+export const globalName = "Flicking";
 
 export default buildHelper([
 		{
-      name,
+      name: globalName,
 			input: "./src/index.umd.ts",
-      output: "./dist/flicking.js",
+      output: `./dist/${fileName}.js`,
       format: "umd",
     },
     {
-      name,
+      name: globalName,
 			input: "./src/index.umd.ts",
-      output: "./dist/flicking.min.js",
+      output: `./dist/${fileName}.min.js`,
       format: "umd",
       uglify: true,
     },
     {
-      name,
+      name: globalName,
 			input: "./src/index.umd.ts",
-      output: "./dist/flicking.pkgd.js",
+      output: `./dist/${fileName}.pkgd.js`,
       format: "umd",
       resolve: true,
     },
     {
-      name,
+      name: globalName,
 			input: "./src/index.umd.ts",
-      output: "./dist/flicking.pkgd.min.js",
+      output: `./dist/${fileName}.pkgd.min.js`,
       format: "umd",
       resolve: true,
       uglify: true,
     },
     {
       input: "./src/index.ts",
-      output: "./dist/flicking.esm.js",
+      output: `./dist/${fileName}.esm.js`,
       format: "esm",
       exports: "named",
     },

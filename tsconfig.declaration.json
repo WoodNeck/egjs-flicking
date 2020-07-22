@@ -4,7 +4,18 @@
     "removeComments": true,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "declarationDir": "declaration",
+    "declarationDir": "./declaration/",
+    "skipLibCheck": true,
     "strictNullChecks": false,
-  }
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ]
+  },
+  "include": [
+    "./src/**/*.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
