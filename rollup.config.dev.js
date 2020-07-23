@@ -2,13 +2,13 @@ import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
 import { fileName, globalName } from "./rollup.config";
 
-const buildHelper = require("@egjs/build-helper");
+const buildHelper = require("./config/build-helper");
 
 export default buildHelper([
   {
     name: globalName,
-    input: "./src/index.umd.ts",
-    output: `./demo/dist/${fileName}.pkgd.js`,
+    input: "./demo/src/App.ts",
+    output: `./demo/dist/app.js`,
     format: "umd",
     resolve: true,
     plugins: [

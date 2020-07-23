@@ -7,7 +7,7 @@ class FlickingError extends Error {
     public code: number) {
     super(message);
     Object.setPrototypeOf(this, FlickingError.prototype);
-    this.name = "T3DError";
+    this.name = "FlickingError";
   }
 }
 

@@ -9,6 +9,7 @@ import { checkExistence, getElement } from "./utils";
 
 class Flicking extends Component<{
   [FLICKING.INIT]: Flicking,
+  [FLICKING.RESIZE]: Flicking,
 }> {
   // Core components
   private _viewport: Viewport;
@@ -29,7 +30,7 @@ class Flicking extends Component<{
     camera,
     control = null,
   }: {
-    autoInit: boolean,
+    autoInit?: boolean,
     renderer: Renderer,
     camera: Camera,
     control: Control | null,
@@ -53,6 +54,14 @@ class Flicking extends Component<{
   }
 
   public init() {
+    const viewport = this._viewport;
+    const camera = this._camera;
+    const renderer = this._renderer;
+
+    camera.init(viewport.element);
+    renderer.gatherPanels(camera.element);
+    renderer.applyStyle();
+
     this.resize();
 
     this.trigger(FLICKING.INIT, this);
@@ -63,6 +72,9 @@ class Flicking extends Component<{
     const renderer = this._renderer;
 
     viewport.updateSize();
+    renderer.updatePanelSize();
+
+    this.trigger(FLICKING.RESIZE, this);
   }
 }
 

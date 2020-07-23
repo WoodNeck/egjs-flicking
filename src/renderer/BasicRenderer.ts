@@ -9,6 +9,19 @@ class BasicRenderer implements Renderer {
   constructor({} = {}) {
 
   }
+
+  public gatherPanels(cameraEl: HTMLElement) {
+    this._panels = Array.from(cameraEl.children)
+      .map((el: HTMLElement) => new Panel({ el }));
+  }
+
+  public applyStyle() {
+
+  }
+
+  public updatePanelSize() {
+    this._panels.forEach(panel => panel.resize());
+  }
 }
 
 export default BasicRenderer;

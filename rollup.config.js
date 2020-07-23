@@ -5,7 +5,7 @@
 // flicking.pkgd.min.js
 // flicking.esm.js
 
-const buildHelper = require("@egjs/build-helper");
+const buildHelper = require("./config/build-helper");
 export const fileName = "flicking";
 export const globalName = "Flicking";
 
