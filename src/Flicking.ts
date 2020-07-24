@@ -20,6 +20,8 @@ class Flicking extends Component<{
   private _camera: Camera;
   private _control: Control | null;
 
+  public get viewport() { return this._viewport; }
+  public get animator() { return this._animator; }
   public get renderer() { return this._renderer; }
   public get camera() { return this._camera; }
   public get control() { return this._control; }

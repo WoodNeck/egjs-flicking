@@ -43,6 +43,9 @@
 - 패널의 크기는 고정
 - 좌/우 여백 지정(previewPadding)
 
+### CSSSnapRenderer
+- CSS3의 scroll snap 기능 이용..
+
 ### ExternalRenderer
 - 외부 프레임워크의 렌더링 메소드를 이용한 방식
 - 외부 프레임워크에서 실제 렌더러를 매핑시켜줄 필요가 있음
@@ -94,3 +97,21 @@ const flicking = new Flicking(root, {
   }),
 });
 ```
+
+---
+
+패널 배치 모드
+
+# 기존 - position: absolute + left/top
+# Swiper - flex(IE10+ with -ms- prefix)
+# Owl carousel - float: left
+# Slick - float: left
+
+---
+
+패널 이동 방식
+
+# 기존 - Axes 이용한 애니메이션
+# Swiper - transition
+# Glide.js - transition
+

@@ -1,3 +1,4 @@
+import "./css/flicking.css";
 import Flicking from "./Flicking";
 import { CODES } from "./consts/error";
 

@@ -3,7 +3,7 @@ html, body {
     padding: 0;
 }
 
-.panel {
+.flick-panel {
     width: 300px;
     height: 300px;
     background-color: #369;

@@ -1,5 +1,8 @@
+import path from "path";
+import postcss from "rollup-plugin-postcss";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
+import autoprefixer from "autoprefixer";
 import { fileName, globalName } from "./rollup.config";
 
 const buildHelper = require("./config/build-helper");
@@ -12,6 +15,10 @@ export default buildHelper([
     format: "umd",
     resolve: true,
     plugins: [
+      postcss({
+        extract: path.resolve(`./demo/dist/${fileName}.css`),
+        plugins: [autoprefixer]
+      }),
       serve({
         open: true,
         contentBase: "demo",
