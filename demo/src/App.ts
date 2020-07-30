@@ -1,3 +1,4 @@
+import "../../css/flicking-inline.css";
 import Flicking, { BasicRenderer, BasicCamera, SnapControl } from "~/index";
 
 class App {

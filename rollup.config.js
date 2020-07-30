@@ -1,18 +1,10 @@
 import path from "path";
-import postcss from "rollup-plugin-postcss";
-import autoprefixer from "autoprefixer";
 
 const buildHelper = require("./config/build-helper");
 export const fileName = "flicking";
 export const globalName = "Flicking";
 
-const plugins = [
-  postcss({
-    extract: path.resolve(`./dist/${fileName}.css`),
-    minimize: true,
-    plugins: [autoprefixer],
-  }),
-];
+const plugins = [];
 
 export default buildHelper([
 		{

@@ -7,6 +7,9 @@
   overflow: hidden;
   z-index: 1;
 }
+.flick-viewport.visible {
+  overflow: visible;
+}
 
 .flick-camera {
   width: 100%;

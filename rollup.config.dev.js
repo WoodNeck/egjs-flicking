@@ -16,8 +16,7 @@ export default buildHelper([
     resolve: true,
     plugins: [
       postcss({
-        extract: path.resolve(`./demo/dist/${fileName}.css`),
-        plugins: [autoprefixer]
+        extract: true,
       }),
       serve({
         open: true,

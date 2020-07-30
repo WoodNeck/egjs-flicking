@@ -103,6 +103,7 @@ const flicking = new Flicking(root, {
 패널 배치 모드
 
 # 기존 - position: absolute + left/top
+  - Flickity
 # Swiper - flex(IE10+ with -ms- prefix)
 # Owl carousel - float: left
 # Slick - float: left

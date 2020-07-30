@@ -1,0 +1,27 @@
+.flick-viewport {
+  width: 100%;
+  height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.flick-viewport.visible {
+  overflow: visible;
+}
+
+.flick-camera {
+  width: 9999px;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+.flick-camera:after {
+  content: '';
+  clear: both;
+}
+
+.flick-panel {
+  float: left;
+}

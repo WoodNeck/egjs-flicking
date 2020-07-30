@@ -1,10 +1,25 @@
 html, body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
-.flick-panel {
-    width: 300px;
-    height: 300px;
-    background-color: #369;
+header {
+  width: 100%;
+  text-align: center;
+  font-size: 80px;
+  font-weight: bold;
+  padding: 20px 0;
+}
+
+.demo-area {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.panel {
+  width: 300px;
+  height: 300px;
+  background-color: #369;
+  margin-right: 20px;
 }
