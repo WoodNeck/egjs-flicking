@@ -114,5 +114,5 @@ const flicking = new Flicking(root, {
 
 # 기존 - Axes 이용한 애니메이션
 # Swiper - transition
+  - IE10+
 # Glide.js - transition
-

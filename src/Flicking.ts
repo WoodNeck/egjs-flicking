@@ -61,8 +61,7 @@ class Flicking extends Component<{
     const renderer = this._renderer;
 
     camera.init(viewport.element);
-    renderer.gatherPanels(camera.element);
-    renderer.applyStyle();
+    renderer.collectPanels(camera.element);
 
     this.resize();
 

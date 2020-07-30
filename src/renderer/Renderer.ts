@@ -3,8 +3,7 @@ import Panel from "~/core/Panel";
 interface Renderer {
   panels: Panel[];
   // getVisiblePanels
-  gatherPanels(el: HTMLElement): void;
-  applyStyle(): void;
+  collectPanels(el: HTMLElement): void;
   updatePanelSize(): void;
 }
 
