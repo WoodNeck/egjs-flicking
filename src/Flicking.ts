@@ -4,12 +4,15 @@ import Viewport from "./core/Viewport";
 import Renderer from "./renderer/Renderer";
 import Control from "./control/Control";
 import Camera from "./camera/Camera";
-import { FLICKING } from "./consts/event";
+import * as EVENTS from "./consts/event";
 import { checkExistence, getElement } from "./utils";
 
 class Flicking extends Component<{
-  [FLICKING.INIT]: Flicking,
-  [FLICKING.RESIZE]: Flicking,
+  [EVENTS.FLICKING.INIT]: Flicking,
+  [EVENTS.FLICKING.RESIZE]: ({
+    size: Viewport["size"],
+    target: Flicking,
+  }),
 }> {
   // Core components
   private _viewport: Viewport;
@@ -20,22 +23,53 @@ class Flicking extends Component<{
   private _camera: Camera;
   private _control: Control | null;
 
+  // Internal states
+  private _initialized = false;
+  private _
+
+  // Options
+  private _autoInit: boolean;
+  private _autoResize: boolean;
+  private _align: "left" | "center" | "right";
+
   public get viewport() { return this._viewport; }
   public get animator() { return this._animator; }
   public get renderer() { return this._renderer; }
   public get camera() { return this._camera; }
   public get control() { return this._control; }
 
+  // Options getter/setter
+  public get autoInit() { return this._autoInit; }
+  public set autoInit(val: Flicking["_autoInit"]) {
+    if (val && !this._initialized) {
+      this.init();
+    }
+    this._autoInit = val;
+  }
+  public get autoResize() { return this._autoResize; }
+  public set autoResize(val: Flicking["_autoResize"]) {
+    if (val) {
+      window.removeEventListener(EVENTS.BROWSER.RESIZE, this.resize);
+      window.addEventListener(EVENTS.BROWSER.RESIZE, this.resize);
+    }
+    this._autoResize = val;
+  }
+
   constructor(root: HTMLElement | string, {
-    autoInit = true,
     renderer,
     camera,
     control = null,
+    autoInit = true,
+    autoResize = true,
+    align = "center",
   }: {
-    autoInit?: boolean,
-    renderer: Renderer,
-    camera: Camera,
-    control: Control | null,
+    renderer: Renderer;
+    camera: Camera;
+    control: Control | null;
+    autoInit?: Flicking["_autoInit"];
+    autoResize?: Flicking["_autoResize"];
+    align?: Flicking["_align"];
+
   }) {
     super();
 
@@ -50,32 +84,44 @@ class Flicking extends Component<{
     this._camera = camera;
     this._control = control;
 
-    if (autoInit) {
-      this.init();
-    }
+    // Bind options
+    this.autoInit = autoInit;
+    this.autoResize = autoResize;
   }
 
-  public init() {
+  public init(): this {
+    if (this._initialized) return this;
+
     const viewport = this._viewport;
     const camera = this._camera;
     const renderer = this._renderer;
 
-    camera.init(viewport.element);
+    camera.init(viewport);
     renderer.collectPanels(camera.element);
 
     this.resize();
 
-    this.trigger(FLICKING.INIT, this);
+    this._initialized = true;
+    this.trigger(EVENTS.FLICKING.INIT, this);
+
+    return this;
   }
 
-  public resize() {
+  public resize = (): this => {
     const viewport = this._viewport;
     const renderer = this._renderer;
+    const camera = this._camera;
 
     viewport.updateSize();
     renderer.updatePanelSize();
+    camera.updateFocus();
 
-    this.trigger(FLICKING.RESIZE, this);
+    this.trigger(EVENTS.FLICKING.RESIZE, {
+      size: viewport.size,
+      target: this,
+    });
+
+    return this;
   }
 }
 

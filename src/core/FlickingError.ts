@@ -1,7 +1,4 @@
 class FlickingError extends Error {
-  // tslint:disable-next-line naming-convention
-  public __proto__: FlickingError;
-
   constructor(
     public message: string,
     public code: number) {

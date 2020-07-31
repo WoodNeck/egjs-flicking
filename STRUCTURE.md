@@ -61,11 +61,9 @@
 ### SnapControl
 - Strict
 
-### ScrollSnapControl
-- 기존의 snap
-
 ### FreeControl
 - 기존의 FreeScroll
+- 기존의 snap - sticky 옵션으로 추가
 
 ---
 

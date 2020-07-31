@@ -1,35 +1,25 @@
-import Camera, { CameraOption } from "./Camera";
-import { getElement } from "~/utils";
+import Camera, { CameraOption, CameraEvents } from "./Camera";
+import { Component } from "~/core";
 
-interface BasicCameraOption extends CameraOption {
+export interface BasicCameraOption extends CameraOption {
 
 }
 
-class BasicCamera implements Camera {
-  private _options: Partial<CameraOption>;
-  private _el: HTMLElement;
+class BasicCamera extends Camera<{
+  init: void,
+  s: BasicCamera,
+}> {
 
-  public get element() { return this._el; }
-  public get position() { return 0; }
-  public get focus() { return 0; }
-
-  constructor(options: Partial<CameraOption> = {}) {
-    this._options = options;
+  constructor(options: Partial<BasicCameraOption> = {}) {
+    super(options);
   }
 
-  public init(viewportEl: HTMLElement) {
-    const options = this._options;
-
-    if (options.element) {
-      this._el = getElement(options.element, viewportEl);
-    } else {
-      this._el = viewportEl.firstElementChild as HTMLElement;
-    }
-  }
-
-  public copy(other: Camera) {
+  public copy(camera: Camera): this {
+    this.trigger("s", this);
     return this;
   }
 }
+
+new BasicCamera()
 
 export default BasicCamera;
