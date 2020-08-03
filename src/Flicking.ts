@@ -25,12 +25,11 @@ class Flicking extends Component<{
 
   // Internal states
   private _initialized = false;
-  private _
 
   // Options
   private _autoInit: boolean;
   private _autoResize: boolean;
-  private _align: "left" | "center" | "right";
+  private _align: "left" | "center" | "right" | null;
 
   public get viewport() { return this._viewport; }
   public get animator() { return this._animator; }
@@ -39,6 +38,14 @@ class Flicking extends Component<{
   public get control() { return this._control; }
 
   // Options getter/setter
+  public get align() { return this._align; }
+  public set align(val: Flicking["_align"]) {
+    if (val) {
+      this._camera.align = val;
+      this._renderer.align = val;
+    }
+    this._align = val;
+  }
   public get autoInit() { return this._autoInit; }
   public set autoInit(val: Flicking["_autoInit"]) {
     if (val && !this._initialized) {
@@ -48,8 +55,8 @@ class Flicking extends Component<{
   }
   public get autoResize() { return this._autoResize; }
   public set autoResize(val: Flicking["_autoResize"]) {
+    window.removeEventListener(EVENTS.BROWSER.RESIZE, this.resize);
     if (val) {
-      window.removeEventListener(EVENTS.BROWSER.RESIZE, this.resize);
       window.addEventListener(EVENTS.BROWSER.RESIZE, this.resize);
     }
     this._autoResize = val;
@@ -61,7 +68,7 @@ class Flicking extends Component<{
     control = null,
     autoInit = true,
     autoResize = true,
-    align = "center",
+    align = null,
   }: {
     renderer: Renderer;
     camera: Camera;
@@ -69,7 +76,6 @@ class Flicking extends Component<{
     autoInit?: Flicking["_autoInit"];
     autoResize?: Flicking["_autoResize"];
     align?: Flicking["_align"];
-
   }) {
     super();
 
@@ -87,6 +93,7 @@ class Flicking extends Component<{
     // Bind options
     this.autoInit = autoInit;
     this.autoResize = autoResize;
+    this.align = align;
   }
 
   public init(): this {

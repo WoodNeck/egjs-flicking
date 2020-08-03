@@ -1,23 +1,23 @@
 import Component from "~/core/Component";
 import Viewport from "~/core/Viewport";
 import { getElement, checkExistence } from "~/utils";
-import { EVENTS } from "..";
+import * as EVENTS from "~/consts/event";
 
 export interface CameraOption {
   // HTMLElement to apply translation
-  element: HTMLElement | string | null;
+  elSelector: HTMLElement | string | null;
+  align: "left" | "center" | "right" | number;
 }
 
-export interface CameraEvents {
-  "init": void;
-}
-
-abstract class Camera<T extends CameraEvents = CameraEvents> extends Component<CameraEvents> {
+abstract class Camera extends Component<{
+  [EVENTS.CAMERA.INIT]: Camera;
+}> {
   // Options
-  protected _elSelector: HTMLElement | string | null = null;
+  protected _elSelector: CameraOption["elSelector"] = null;
+  protected _align: CameraOption["align"];
 
   // Internal states
-  protected _viewport: Viewport;
+  protected _viewport: Viewport | null = null;
   protected _el: HTMLElement;
   protected _position: number = 0;
   protected _focus: number = 0;
@@ -26,24 +26,24 @@ abstract class Camera<T extends CameraEvents = CameraEvents> extends Component<C
    * This value is null before initialization
    */
   public get element(): HTMLElement { return this._el; }
-  public set element(val: CameraOption["element"]) {
-    this._elSelector = val;
-    if (this._viewport) {
-      if (this._el) {
-        // TODO: Remove style for previous el
-      }
-      this._el = getElement(this._elSelector, this._viewport.element);
-    }
-  }
 
   public get position() { return this._position; }
   public get focus() { return this._focus; }
 
+  // Options getter/setter
+  public get elSelector() { return this._elSelector; }
+  public set elSelector(val: CameraOption["elSelector"]) { this._elSelector = val; }
+  public get align() { return this._align; }
+  public set align(val: CameraOption["align"]) {
+    this._align = val;
+    this.updateFocus();
+  }
+
   constructor({
-    element = null,
+    elSelector = null,
   }: Partial<CameraOption> = {}) {
     super();
-    this._elSelector = element;
+    this._elSelector = elSelector;
   }
 
   public init(viewport: Viewport): this {
@@ -56,16 +56,39 @@ abstract class Camera<T extends CameraEvents = CameraEvents> extends Component<C
       this._el = viewport.element.firstElementChild as HTMLElement;
     }
 
-    this.trigger("init")
+    this.trigger("init", this);
 
-    return this;
-  }
-
-  public setFocus(val: number): this {
     return this;
   }
 
   public updateFocus(): this {
+    if (!this._viewport) return this;
+
+    const align = this._align;
+
+    let alignPoint = 0.5;
+    if (typeof align === "string") {
+      switch (align) {
+        case "left":
+          alignPoint = 0;
+          break;
+        case "center":
+          alignPoint = 0.5;
+          break;
+        case "right":
+          alignPoint = 1;
+          break;
+      }
+    } else {
+      alignPoint = align;
+    }
+
+    if (alignPoint <= 1) {
+      this._focus = alignPoint * this._viewport.size.width;
+    } else {
+      this._focus = alignPoint;
+    }
+
     return this;
   }
 

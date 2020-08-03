@@ -1,25 +1,17 @@
-import Camera, { CameraOption, CameraEvents } from "./Camera";
-import { Component } from "~/core";
+import Camera, { CameraOption } from "./Camera";
 
 export interface BasicCameraOption extends CameraOption {
 
 }
 
-class BasicCamera extends Camera<{
-  init: void,
-  s: BasicCamera,
-}> {
-
+class BasicCamera extends Camera {
   constructor(options: Partial<BasicCameraOption> = {}) {
     super(options);
   }
 
   public copy(camera: Camera): this {
-    this.trigger("s", this);
     return this;
   }
 }
-
-new BasicCamera()
 
 export default BasicCamera;
