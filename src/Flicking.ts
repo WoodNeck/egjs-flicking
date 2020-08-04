@@ -29,7 +29,7 @@ class Flicking extends Component<{
   // Options
   private _autoInit: boolean;
   private _autoResize: boolean;
-  private _align: "left" | "center" | "right" | null;
+  private _align: "left" | "top" | "center" | "right" | "bottom" | null;
 
   public get viewport() { return this._viewport; }
   public get animator() { return this._animator; }
@@ -91,9 +91,9 @@ class Flicking extends Component<{
     this._control = control;
 
     // Bind options
+    this.align = align;
     this.autoInit = autoInit;
     this.autoResize = autoResize;
-    this.align = align;
   }
 
   public init(): this {

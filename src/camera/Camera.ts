@@ -6,7 +6,7 @@ import * as EVENTS from "~/consts/event";
 export interface CameraOption {
   // HTMLElement to apply translation
   elSelector: HTMLElement | string | null;
-  align: "left" | "center" | "right" | number;
+  align: "left" | "top" | "center" | "right" | "bottom" | number;
 }
 
 abstract class Camera extends Component<{
@@ -40,10 +40,12 @@ abstract class Camera extends Component<{
   }
 
   constructor({
+    align = "center",
     elSelector = null,
   }: Partial<CameraOption> = {}) {
     super();
     this._elSelector = elSelector;
+    this.align = align;
   }
 
   public init(viewport: Viewport): this {
@@ -70,16 +72,19 @@ abstract class Camera extends Component<{
     if (typeof align === "string") {
       switch (align) {
         case "left":
+        case "top":
           alignPoint = 0;
           break;
         case "center":
           alignPoint = 0.5;
           break;
         case "right":
+        case "bottom":
           alignPoint = 1;
           break;
       }
     } else {
+      // So, 1px from left/top isn't possible.
       alignPoint = align;
     }
 
