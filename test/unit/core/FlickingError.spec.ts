@@ -42,4 +42,14 @@ describe("FlickingError", () => {
     // Then
     expect(err.message).equals(randomMessage);
   });
+
+  it("has a stack in it", () => {
+    // Given & When
+    const err = new FlickingError("", 0);
+
+    // Then
+    expect(err.stack).is.not.null;
+    expect(err.stack).is.not.undefined;
+    expect(err.stack).not.equals("");
+  });
 });

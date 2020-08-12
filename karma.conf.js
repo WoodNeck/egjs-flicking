@@ -14,15 +14,15 @@ module.exports = function(config) {
       "./test/setup.js",
       "./test/hammer-simulator.run.js",
       "./src/**/*.ts",
+      "./css/**/*.css",
       "./test/**/*.ts",
-      "./test/unit/assets/*.css",
     ],
     preprocessors: {
       "src/**/*.ts": ["karma-typescript"],
       "test/**/*.ts": ["karma-typescript"],
     },
     karmaTypescriptConfig: {
-      tsconfig: "./tsconfig.test.json",
+      tsconfig: "./test/tsconfig.json",
       reports: {
         html: {
           "directory": "coverage",

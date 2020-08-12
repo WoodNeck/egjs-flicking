@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig",
+  "extends": "../tsconfig",
   "compilerOptions": {
     "module": "commonjs",
     "noImplicitAny": false,
@@ -12,14 +12,14 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["../src/*"]
     },
   },
   "include": [
-    "./src/**/*.ts",
-    "./test/**/*.ts"
+    "../src/**/*.ts",
+    "./**/*.ts"
   ],
   "exclude": [
-    "./node_modules/**/*.ts"
+    "../node_modules/**/*.ts"
   ]
 }

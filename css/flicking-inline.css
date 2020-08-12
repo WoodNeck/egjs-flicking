@@ -1,4 +1,4 @@
-.flick-viewport {
+.flicking-viewport {
   width: 100%;
   height: 100%;
   margin-left: auto;
@@ -7,11 +7,11 @@
   overflow: hidden;
   z-index: 1;
 }
-.flick-viewport.visible {
+.flicking-viewport.flicking-viewport-visible {
   overflow: visible;
 }
 
-.flick-camera {
+.flicking-camera {
   width: 100%;
   height: 100%;
   position: relative;
@@ -20,9 +20,12 @@
   font-size: 0;
 }
 
-.flick-panel {
+.flicking-panel {
   display: inline-block;
   white-space: initial;
   vertical-align: top;
   font-size: initial;
+}
+.flicking-viewport-vertical>.flicking-camera .flicking-panel {
+  display: block;
 }

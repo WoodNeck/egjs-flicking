@@ -1,13 +1,13 @@
 # Flicking
 - Facade 클래스
 ```html
-<div class="flick-viewport">
-    <div class="flick-camera">
+<div class="flicking-viewport">
+    <div class="flicking-camera">
         <!-- 이 아래 엘리먼트들이 자동적으로 사용됩니다. -->
-        <div class="panel"></div>
-        <div class="panel"></div>
-        <div class="panel"></div>
-        <div class="panel"></div>
+        <div class="flicking-panel"></div>
+        <div class="flicking-panel"></div>
+        <div class="flicking-panel"></div>
+        <div class="flicking-panel"></div>
     </div>
 </div>
 ```

@@ -5,7 +5,7 @@ class App {
   private _flicking: Flicking;
 
   constructor() {
-    this._flicking = new Flicking(".flick-viewport", {
+    this._flicking = new Flicking("#flicking", {
       renderer: new BasicRenderer(),
       camera: new BasicCamera(),
       control: new SnapControl(),
