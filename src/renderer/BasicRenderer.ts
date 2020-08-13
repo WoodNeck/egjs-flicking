@@ -1,5 +1,6 @@
 import Renderer, { RendererOption } from "./Renderer";
 import Panel from "~/core/Panel";
+import * as OPTIONS from "~/consts/option";
 
 export interface BasicRendererOption extends RendererOption {
 
@@ -13,10 +14,11 @@ class BasicRenderer implements Renderer {
   public get align() { return this._align; }
   public set align(val: BasicRendererOption["align"]) {
     this._align = val;
+    this._panels.forEach(panel => panel.align = val);
   }
 
   constructor({
-    align = "center",
+    align = OPTIONS.ALIGN.LEFT,
   }: Partial<RendererOption> = {}) {
     this.align = align;
   }

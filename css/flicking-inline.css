@@ -7,7 +7,7 @@
   overflow: hidden;
   z-index: 1;
 }
-.flicking-viewport.flicking-viewport-visible {
+.flicking-viewport.overflow {
   overflow: visible;
 }
 
@@ -26,6 +26,12 @@
   vertical-align: top;
   font-size: initial;
 }
-.flicking-viewport-vertical>.flicking-camera .flicking-panel {
+.flicking-viewport.vertical-middle>.flicking-camera .flicking-panel {
+  vertical-align: middle;
+}
+.flicking-viewport.vertical-bottom>.flicking-camera .flicking-panel {
+  vertical-align: bottom;
+}
+.flicking-viewport.vertical>.flicking-camera .flicking-panel {
   display: block;
 }

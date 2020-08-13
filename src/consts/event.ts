@@ -1,3 +1,6 @@
+// tslint:disable-next-line naming-convention
+const RESIZE = "resize";
+
 export const BROWSER: {
   MOUSE_DOWN: "mousedown";
   MOUSE_MOVE: "mousemove";
@@ -20,7 +23,7 @@ export const BROWSER: {
   TOUCH_END: "touchend",
   CLICK: "click",
   WHEEL: "wheel",
-  RESIZE: "resize",
+  RESIZE,
   CONTEXT_MENU: "contextmenu",
   MOUSE_ENTER: "mouseenter",
   MOUSE_LEAVE: "mouseleave",
@@ -31,11 +34,17 @@ export const FLICKING: {
   RESIZE: "resize";
 } = {
   INIT: "init",
-  RESIZE: "resize",
+  RESIZE,
 };
 
 export const CAMERA: {
   INIT: "init";
 } = {
   INIT: "init",
+};
+
+export const PANEL: {
+  RESIZE: "resize",
+} = {
+  RESIZE,
 };

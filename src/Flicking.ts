@@ -1,4 +1,4 @@
-import Component from "./core/Component";
+import EventEmitter from "./core/EventEmitter";
 import Animator from "./core/Animator";
 import Viewport from "./core/Viewport";
 import Renderer from "./renderer/Renderer";
@@ -9,18 +9,17 @@ import * as OPTIONS from "./consts/option";
 import { checkExistence, getElement } from "./utils";
 import { ValueOf } from "./types/internal";
 
-class Flicking extends Component<{
+class Flicking extends EventEmitter<{
   [EVENTS.FLICKING.INIT]: Flicking,
   [EVENTS.FLICKING.RESIZE]: ({
-    size: Viewport["size"],
-    target: Flicking,
+    width: number;
+    height: number;
+    target: Flicking;
   }),
 }> {
   // Core components
   private _viewport: Viewport;
   private _animator: Animator;
-
-  // User selection
   private _renderer: Renderer;
   private _camera: Camera;
   private _control: Control | null;
@@ -134,7 +133,7 @@ class Flicking extends Component<{
     camera.updateFocus();
 
     this.trigger(EVENTS.FLICKING.RESIZE, {
-      size: viewport.size,
+      ...viewport.size,
       target: this,
     });
 

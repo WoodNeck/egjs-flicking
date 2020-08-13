@@ -1,7 +1,9 @@
 import Panel from "~/core/Panel";
+import * as OPTIONS from "~/consts/option";
+import { ValueOf } from "~/types/internal";
 
 export interface RendererOption {
-  align: "left" | "top" | "center" | "right" | "bottom" | number;
+  align: ValueOf<typeof OPTIONS.ALIGN> | number;
 }
 
 interface Renderer {

@@ -98,19 +98,28 @@ const flicking = new Flicking(root, {
 
 ---
 
-패널 배치 모드
+# Input
 
-# 기존 - position: absolute + left/top
-  - Flickity
-# Swiper - flex(IE10+ with -ms- prefix)
-# Owl carousel - float: left
-# Slick - float: left
+Spring physics 기반
+- https://en.wikipedia.org/wiki/Harmonic_oscillator#Damped_harmonic_oscillator
 
 ---
 
-패널 이동 방식
+# 패널 배치 모드
 
-# 기존 - Axes 이용한 애니메이션
-# Swiper - transition
+- 기존 - position: absolute + left/top
+  - Flickity
+- Swiper - flex(IE10+ with -ms- prefix)
+- Owl carousel - float: left
+- Slick - float: left
+
+---
+
+# 패널 이동 방식
+
+- 기존 - Axes 이용한 애니메이션
+- Swiper - transition
   - IE10+
-# Glide.js - transition
+- Glide.js - transition
+
+---

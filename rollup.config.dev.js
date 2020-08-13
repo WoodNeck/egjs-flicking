@@ -1,6 +1,7 @@
 import postcss from "rollup-plugin-postcss";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
+import autoprefixer from "autoprefixer";
 import { fileName, globalName } from "./rollup.config";
 
 const buildHelper = require("./config/build-helper");
@@ -15,6 +16,7 @@ export default buildHelper([
     plugins: [
       postcss({
         extract: true,
+        plugins: [autoprefixer]
       }),
       serve({
         open: true,

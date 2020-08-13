@@ -9,7 +9,7 @@ type EventCallback<T extends EventMap, K extends EventKey<T>>
       ? T[K]
       : (event: T[K]) => any;
 
-class Component<T extends EventMap> {
+class EventEmitter<T extends EventMap> {
   private _listenerMap: {
     [keys: string]: Array<EventCallback<T, EventKey<T>>>,
   };
@@ -62,4 +62,4 @@ class Component<T extends EventMap> {
   }
 }
 
-export default Component;
+export default EventEmitter;

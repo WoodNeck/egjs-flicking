@@ -1,16 +1,37 @@
-class Panel {
+import EventEmitter from "~/core/EventEmitter";
+import * as EVENTS from "~/consts/event";
+import * as OPTIONS from "~/consts/option";
+import { ValueOf } from "~/types/internal";
+
+class Panel extends EventEmitter<{
+  [EVENTS.PANEL.RESIZE]: ({
+    width: Panel["width"],
+    height: Panel["height"],
+    target: Panel,
+  }),
+}> {
   private _el: HTMLElement;
   private _size: { width: number, height: number };
   private _margin: { left: number, right: number, top: number, bottom: number };
-  private _align: "left" | "center" | "right" | number;
+  private _align: ValueOf<typeof OPTIONS.ALIGN> | number;
 
   public get element() { return this._el; }
+  public get width() { return this._size.width + this._margin.left + this._margin.right; }
+  public get height() { return this._size.height + this._margin.top + this._margin.bottom; }
+
+  // Options
+  public get align() { return this._align; }
+  public set align(val: Panel["_align"]) {
+    this._align = val;
+    this._updateAlignPos();
+  }
 
   constructor({
     el,
   }: {
     el: HTMLElement,
   }) {
+    super();
     this._el = el;
 
     // Minimum default values
@@ -32,9 +53,11 @@ class Panel {
       top: parseFloat(elStyle.marginTop),
       bottom: parseFloat(elStyle.marginBottom),
     };
+
+    this._updateAlignPos();
   }
 
-  public setAlignPoint() {
+  private _updateAlignPos() {
 
   }
 }

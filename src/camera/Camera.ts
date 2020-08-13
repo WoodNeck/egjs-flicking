@@ -1,15 +1,17 @@
-import Component from "~/core/Component";
+import EventEmitter from "~/core/EventEmitter";
 import Viewport from "~/core/Viewport";
 import { getElement, checkExistence } from "~/utils";
 import * as EVENTS from "~/consts/event";
+import * as OPTIONS from "~/consts/option";
+import { ValueOf } from "~/types/internal";
 
 export interface CameraOption {
   // HTMLElement to apply translation
   elSelector: HTMLElement | string | null;
-  align: "left" | "top" | "center" | "right" | "bottom" | number;
+  align: ValueOf<typeof OPTIONS.ALIGN> | number;
 }
 
-abstract class Camera extends Component<{
+abstract class Camera extends EventEmitter<{
   [EVENTS.CAMERA.INIT]: Camera;
 }> {
   // Options
@@ -40,7 +42,7 @@ abstract class Camera extends Component<{
   }
 
   constructor({
-    align = "center",
+    align = OPTIONS.ALIGN.LEFT,
     elSelector = null,
   }: Partial<CameraOption> = {}) {
     super();
@@ -68,20 +70,22 @@ abstract class Camera extends Component<{
 
     const align = this._align;
 
-    let alignPoint = 0.5;
+    let alignPoint: number;
     if (typeof align === "string") {
       switch (align) {
-        case "left":
-        case "top":
+        case OPTIONS.ALIGN.LEFT:
+        case OPTIONS.ALIGN.TOP:
           alignPoint = 0;
           break;
-        case "center":
+        case OPTIONS.ALIGN.CENTER:
           alignPoint = 0.5;
           break;
-        case "right":
-        case "bottom":
+        case OPTIONS.ALIGN.RIGHT:
+        case OPTIONS.ALIGN.BOTTOM:
           alignPoint = 1;
           break;
+        default:
+          alignPoint = 0;
       }
     } else {
       // So, 1px from left/top isn't possible.
