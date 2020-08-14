@@ -10,8 +10,9 @@ interface Renderer {
   panels: Panel[];
   align: RendererOption["align"];
   // getVisiblePanels
-  collectPanels(el: HTMLElement): void;
-  updatePanelSize(): void;
+  collectPanels(el: HTMLElement): this;
+  updatePanelSize(): this;
+  updatePanelPosition(): this;
 }
 
 export default Renderer;

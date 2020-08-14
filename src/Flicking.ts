@@ -28,7 +28,7 @@ class Flicking extends EventEmitter<{
   private _initialized = false;
 
   // Options
-  private _align: ValueOf<typeof OPTIONS.ALIGN> | null;
+  private _align: ValueOf<typeof OPTIONS.ALIGN> | number | null;
   private _direction: ValueOf<typeof OPTIONS.DIRECTION>;
   private _autoInit: boolean;
   private _autoResize: boolean;
@@ -38,6 +38,9 @@ class Flicking extends EventEmitter<{
   public get renderer() { return this._renderer; }
   public get camera() { return this._camera; }
   public get control() { return this._control; }
+
+  // Internal States getter
+  public get initialized() { return this._initialized; }
 
   // Options getter/setter
   public get align() { return this._align; }
@@ -118,9 +121,15 @@ class Flicking extends EventEmitter<{
     this.resize();
 
     this._initialized = true;
-    this.trigger(EVENTS.FLICKING.INIT, this);
+    this.emit(EVENTS.FLICKING.INIT, this);
+
+    // camera.lookAt(renderer.panels[0]);
 
     return this;
+  }
+
+  public destroy() {
+    window.removeEventListener(EVENTS.BROWSER.RESIZE, this.resize);
   }
 
   public resize = (): this => {
@@ -130,9 +139,9 @@ class Flicking extends EventEmitter<{
 
     viewport.updateSize();
     renderer.updatePanelSize();
-    camera.updateFocus();
+    camera.updateAlignPos();
 
-    this.trigger(EVENTS.FLICKING.RESIZE, {
+    this.emit(EVENTS.FLICKING.RESIZE, {
       ...viewport.size,
       target: this,
     });

@@ -1,5 +1,7 @@
 import FlickingError from "~/core/FlickingError";
 import * as ERROR from "~/consts/error";
+import * as OPTIONS from "~/consts/option";
+import { ValueOf } from "./types/internal";
 
 export function getElement(el: HTMLElement | string | null, parent?: HTMLElement): HTMLElement {
   let targetEl: HTMLElement | null = null;
@@ -79,4 +81,35 @@ export function findIndex<T>(target: T, list: T[]) {
     }
   }
   return index;
+}
+
+export function parseAlign(align: ValueOf<typeof OPTIONS.ALIGN> | number, size: number): number {
+  let alignPoint: number;
+  if (typeof align === "string") {
+    switch (align) {
+      case OPTIONS.ALIGN.LEFT:
+      case OPTIONS.ALIGN.TOP:
+        alignPoint = 0;
+        break;
+      case OPTIONS.ALIGN.CENTER:
+        alignPoint = 0.5;
+        break;
+      case OPTIONS.ALIGN.RIGHT:
+      case OPTIONS.ALIGN.BOTTOM:
+        alignPoint = 1;
+        break;
+      default:
+        throw new FlickingError(
+          ERROR.MESSAGES.WRONG_TYPE(align, Object.keys(OPTIONS.ALIGN).map(key => OPTIONS.ALIGN[key])),
+          ERROR.CODES.WRONG_TYPE,
+        );
+    }
+  } else {
+    // So, 1px from left/top isn't possible.
+    alignPoint = align;
+  }
+
+  return alignPoint <= 1
+    ? alignPoint * size
+    : alignPoint;
 }

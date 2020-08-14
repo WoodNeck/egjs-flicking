@@ -1,3 +1,5 @@
+import { findIndex } from "~/utils";
+
 type AnyFunction = (...args: any[]) => any;
 type NoArguments = undefined | null | void | never;
 type EventMap = Record<string, any>;
@@ -22,7 +24,7 @@ class EventEmitter<T extends EventMap> {
     const listenerMap = this._listenerMap;
     const listeners = listenerMap[eventName];
 
-    if (listeners && listeners.indexOf(callback) < 0) {
+    if (listeners && findIndex(callback, listeners) < 0) {
       listeners.push(callback);
     } else {
       listenerMap[eventName] = [callback];
@@ -37,7 +39,7 @@ class EventEmitter<T extends EventMap> {
     if (!callback) {
       delete listenerMap[eventName];
     } else if (listeners) {
-      const callbackIdx = listeners.indexOf(callback);
+      const callbackIdx = findIndex(callback, listeners);
       if (callbackIdx >= 0) {
         listeners.splice(callbackIdx, 1);
       }
@@ -46,7 +48,7 @@ class EventEmitter<T extends EventMap> {
     return this;
   }
 
-  public trigger<K extends EventKey<T>>(
+  public emit<K extends EventKey<T>>(
     eventName: K,
     ...event: T[K] extends NoArguments ? void[] : T[K] extends AnyFunction ? Parameters<T[K]> : [T[K]]
   ): this {

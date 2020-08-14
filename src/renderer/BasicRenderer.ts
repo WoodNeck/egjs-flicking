@@ -8,9 +8,13 @@ export interface BasicRendererOption extends RendererOption {
 
 class BasicRenderer implements Renderer {
   private _panels: Panel[] = [];
+
+  // Options
   private _align: BasicRendererOption["align"];
 
   public get panels() { return this._panels; }
+
+  // Options getter/setter
   public get align() { return this._align; }
   public set align(val: BasicRendererOption["align"]) {
     this._align = val;
@@ -25,11 +29,18 @@ class BasicRenderer implements Renderer {
 
   public collectPanels(cameraEl: HTMLElement) {
     this._panels = Array.from(cameraEl.children)
-      .map((el: HTMLElement) => new Panel({ el }));
+      .map((el: HTMLElement) => new Panel({ el, align: this._align }));
+    return this;
   }
 
   public updatePanelSize() {
     this._panels.forEach(panel => panel.resize());
+    return this;
+  }
+
+  public updatePanelPosition() {
+    
+    return this;
   }
 }
 

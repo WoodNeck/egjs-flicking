@@ -37,6 +37,12 @@ export const FLICKING: {
   RESIZE,
 };
 
+export const VIEWPORT: {
+  RESIZE: "resize",
+} = {
+  RESIZE,
+};
+
 export const CAMERA: {
   INIT: "init";
 } = {

@@ -16,7 +16,7 @@ export const CODES: {
 };
 
 export const MESSAGES = {
-  WRONG_TYPE: (val: any, types: string[]) => `${typeof val} is not a ${types.map(type => `"${type}"`).join(" or ")}.`,
+  WRONG_TYPE: (val: any, types: string[]) => `${val}(${typeof val}) is not a ${types.map(type => `"${type}"`).join(" or ")}.`,
   ELEMENT_NOT_FOUND: (query: string) => `Element with selector "${query}" not found.`,
   VAL_MUST_NOT_NULL: (val: any, name: string) => `${name} should be provided. Given: ${val}`,
 };
