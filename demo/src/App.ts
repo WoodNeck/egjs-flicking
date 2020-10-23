@@ -6,7 +6,6 @@ class App {
 
   constructor() {
     this._flicking = new Flicking("#flicking", {
-      align: ALIGN.CENTER,
       renderer: new BasicRenderer(),
       camera: new BasicCamera(),
       control: new SnapControl(),

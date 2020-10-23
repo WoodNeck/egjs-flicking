@@ -1,6 +1,6 @@
+import Flicking from "~/Flicking";
 import Camera, { CameraOption } from "./Camera";
 import EventEmitter from "~/core/EventEmitter";
-import Viewport from "~/core/Viewport";
 import { getElement, checkExistence, parseAlign } from "~/utils";
 import * as EVENTS from "~/consts/event";
 import * as OPTIONS from "~/consts/option";
@@ -15,7 +15,7 @@ class BasicCamera extends EventEmitter<{
   protected _align: BasicCameraOption["align"];
 
   // Internal states
-  protected _viewport: Viewport | null = null;
+  protected _flicking: Flicking | null = null;
   protected _el: HTMLElement;
   protected _position: number = 0;
   protected _alignPos: number = 0;
@@ -46,21 +46,23 @@ class BasicCamera extends EventEmitter<{
   }
 
   public destroy() {
-    this._viewport?.off(EVENTS.VIEWPORT.RESIZE, this._onViewportResize);
+    this._flicking?.off(EVENTS.VIEWPORT.RESIZE, this._onViewportResize);
     return this;
   }
 
-  public init(viewport: Viewport) {
-    this._viewport = viewport;
+  public init(flicking: Flicking) {
+    this._flicking = flicking;
+
+    const viewportEl = flicking.viewport.element;
 
     if (this._elSelector) {
-      this._el = getElement(this._elSelector, viewport.element);
+      this._el = getElement(this._elSelector, viewportEl);
     } else {
-      checkExistence(viewport.element.firstElementChild, "First element child of viewport element");
-      this._el = viewport.element.firstElementChild as HTMLElement;
+      checkExistence(viewportEl.firstElementChild, "First element child of viewport element");
+      this._el = viewportEl.firstElementChild as HTMLElement;
     }
 
-    viewport.on(EVENTS.VIEWPORT.RESIZE, this._onViewportResize);
+    flicking.on(EVENTS.VIEWPORT.RESIZE, this._onViewportResize);
 
     this.emit(EVENTS.CAMERA.INIT, this);
 
@@ -74,9 +76,11 @@ class BasicCamera extends EventEmitter<{
   }
 
   public updateAlignPos(): this {
-    if (!this._viewport) return this;
+    const flicking = this._flicking;
 
-    this._alignPos = parseAlign(this._align, this._viewport.size.width);
+    if (!flicking) return this;
+
+    this._alignPos = parseAlign(this._align, flicking.viewport.size.width);
 
     return this;
   }

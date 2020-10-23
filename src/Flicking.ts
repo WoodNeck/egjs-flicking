@@ -111,12 +111,15 @@ class Flicking extends EventEmitter<{
   public init(): this {
     if (this._initialized) return this;
 
-    const viewport = this._viewport;
     const camera = this._camera;
     const renderer = this._renderer;
+    const control = this._control;
 
-    camera.init(viewport);
-    renderer.collectPanels(camera.element);
+    camera.init(this);
+    renderer.init(this);
+    if (control) {
+      control.init(this);
+    }
 
     this.resize();
 

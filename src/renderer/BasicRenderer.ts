@@ -1,12 +1,14 @@
 import Renderer, { RendererOption } from "./Renderer";
 import Panel from "~/core/Panel";
 import * as OPTIONS from "~/consts/option";
+import Flicking from "~/Flicking";
 
 export interface BasicRendererOption extends RendererOption {
 
 }
 
 class BasicRenderer implements Renderer {
+  private _flicking: Flicking;
   private _panels: Panel[] = [];
 
   // Options
@@ -23,13 +25,13 @@ class BasicRenderer implements Renderer {
 
   constructor({
     align = OPTIONS.ALIGN.LEFT,
-  }: Partial<RendererOption> = {}) {
+  }: Partial<BasicRendererOption> = {}) {
     this.align = align;
   }
 
-  public collectPanels(cameraEl: HTMLElement) {
-    this._panels = Array.from(cameraEl.children)
-      .map((el: HTMLElement) => new Panel({ el, align: this._align }));
+  public init(flicking: Flicking) {
+    this._flicking = flicking;
+    this._collectPanels(flicking.camera.element);
     return this;
   }
 
@@ -39,7 +41,13 @@ class BasicRenderer implements Renderer {
   }
 
   public updatePanelPosition() {
-    
+
+    return this;
+  }
+
+  private _collectPanels(cameraEl: HTMLElement) {
+    this._panels = Array.from(cameraEl.children)
+      .map((el: HTMLElement) => new Panel({ el, align: this._align }));
     return this;
   }
 }

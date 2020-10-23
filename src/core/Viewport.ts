@@ -2,11 +2,6 @@ import EventEmitter from "./EventEmitter";
 import * as EVENTS from "~/consts/event";
 
 class Viewport extends EventEmitter<{
-  [EVENTS.VIEWPORT.RESIZE]: ({
-    width: number,
-    height: number,
-    target: Viewport,
-  }),
 }> {
   private _el: HTMLElement;
   private _size: { width: number, height: number };
@@ -55,11 +50,6 @@ class Viewport extends EventEmitter<{
       width: el.offsetWidth,
       height: el.offsetHeight,
     };
-
-    this.emit(EVENTS.VIEWPORT.RESIZE, {
-      ...this._size,
-      target: this,
-    });
   }
 }
 

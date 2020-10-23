@@ -1,3 +1,4 @@
+import Flicking from "~/Flicking";
 import Panel from "~/core/Panel";
 import * as OPTIONS from "~/consts/option";
 import { ValueOf } from "~/types/internal";
@@ -10,7 +11,7 @@ interface Renderer {
   panels: Panel[];
   align: RendererOption["align"];
   // getVisiblePanels
-  collectPanels(el: HTMLElement): this;
+  init(flicking: Flicking): this;
   updatePanelSize(): this;
   updatePanelPosition(): this;
 }
